@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-namespace Cinema.Models
+namespace Cinema.Models;
 
 public class Sessao
 {

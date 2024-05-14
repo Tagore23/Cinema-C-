@@ -4,8 +4,8 @@ namespace Cinema.Models;
 
 public class AppDataContext : DbContext
 {
-    public DbSet<Filme> Filme { get; set; }
-    public DbSet<Sessao> Sessao { get; set; }
+    public DbSet<Filme> Filmes { get; set; }
+    public DbSet<Sessao> Sessoes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

@@ -1,4 +1,4 @@
-namespace Cinema.Models
+namespace Cinema.Models;
 public class Filme
 {
     public int Id { get; set; }
