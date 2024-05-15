@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Cinema.Migrations
 {
     /// <inheritdoc />
-    public partial class primeiramigracao : Migration
+    public partial class primeiraMigracao : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,7 +32,7 @@ namespace Cinema.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     FilmeId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Data = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Data = table.Column<string>(type: "TEXT", nullable: false),
                     Horario = table.Column<string>(type: "TEXT", nullable: false),
                     Sala = table.Column<string>(type: "TEXT", nullable: false),
                     PrecoIngresso = table.Column<decimal>(type: "TEXT", nullable: false)
