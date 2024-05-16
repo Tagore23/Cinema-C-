@@ -11,4 +11,8 @@ public class AppDataContext : DbContext
     {
         optionsBuilder.UseSqlite("Data Source=Cinema.db");
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder){
+        modelBuilder.Entity<Sessao>().HasOne(s => s.Filme).WithMany().HasForeignKey(s => s.FilmeId);
+    }
 }

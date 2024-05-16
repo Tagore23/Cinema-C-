@@ -43,4 +43,21 @@ app.MapGet("/api/sessao/listar",
     return Results.NotFound("Tabela vazia!");
 });
 
+app.MapPost("/api/venda", (VendaRequest vendaRequest, [FromServices] AppDataContext ctx) =>
+{
+    var sessao = ctx.Sessoes.Include(s => s.Filme).FirstOrDefault(s => s.Id == vendaRequest.SessaoId);
+    if (sessao == null)
+    {
+        return Results.NotFound("Sessão não encontrada!");
+    }
+
+    if (vendaRequest.ValorPago < sessao.PrecoIngresso)
+    {
+        return Results.BadRequest("Valor pago é insuficiente!");
+    }
+
+    var troco = vendaRequest.ValorPago - sessao.PrecoIngresso;
+    return Results.Ok(new { Mensagem = "Ingresso comprado com sucesso!", Troco = troco });
+});
+
 app.Run();

@@ -9,4 +9,6 @@ public class Sessao
     public string Horario { get; set; }
     public string Sala { get; set; }
     public decimal PrecoIngresso { get; set; }
+
+    public Filme Filme { get; set; }
 }
