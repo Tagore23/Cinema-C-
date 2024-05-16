@@ -23,4 +23,24 @@ app.MapPost("/api/sessao", (Sessao sessao, [FromServices] AppDataContext ctx) =>
     return Results.Created($"/api/sessao/{sessao.Id}", sessao);
 });
 
+app.MapGet("/api/filme/listar",
+    ([FromServices] AppDataContext ctx) =>
+{
+    if (ctx.Filmes.Any())
+    {
+        return Results.Ok(ctx.Filmes.ToList());
+    }
+    return Results.NotFound("Tabela vazia!");
+});
+
+app.MapGet("/api/sessao/listar",
+    ([FromServices] AppDataContext ctx) =>
+{
+    if (ctx.Sessoes.Any())
+    {
+        return Results.Ok(ctx.Sessoes.ToList());
+    }
+    return Results.NotFound("Tabela vazia!");
+});
+
 app.Run();
