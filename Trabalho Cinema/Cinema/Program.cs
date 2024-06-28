@@ -7,7 +7,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDataContext>();
 
+builder.Services.AddCors(options =>
+    options.AddPolicy("Acesso Total",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod())
+);
+
 var app = builder.Build();
+
+
 
 app.MapPost("/api/filme", (Filme filme, [FromServices] AppDataContext ctx) =>
 {
@@ -16,15 +26,30 @@ app.MapPost("/api/filme", (Filme filme, [FromServices] AppDataContext ctx) =>
     return Results.Created($"/api/filme/{filme.Id}", filme);
 });
 
-app.MapPost("/api/sessao", (Sessao sessao, [FromServices] AppDataContext ctx) =>
+app.MapPost("/api/sessao", async (Sessao sessao, [FromServices] AppDataContext ctx) =>
 {
-    ctx.Sessoes.Add(sessao);
-    ctx.SaveChanges();
-    return Results.Created($"/api/sessao/{sessao.Id}", sessao);
+    try
+    {
+        if (sessao == null)
+        {
+            return Results.BadRequest("Dados da sessão não foram fornecidos corretamente.");
+        }
+
+        ctx.Sessoes.Add(sessao);
+        await ctx.SaveChangesAsync(); // Use SaveChangesAsync para operações assíncronas
+
+        return Results.Created($"/api/sessao/{sessao.Id}", sessao);
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Erro ao cadastrar sessão: {ex.Message}");
+        return Results.Problem($"Erro interno ao cadastrar sessão: {ex.Message}", statusCode: 500);
+    }
 });
 
-app.MapGet("/api/filme/listar",
-    ([FromServices] AppDataContext ctx) =>
+
+
+app.MapGet("/api/filme/listar", ([FromServices] AppDataContext ctx) =>
 {
     if (ctx.Filmes.Any())
     {
@@ -33,8 +58,7 @@ app.MapGet("/api/filme/listar",
     return Results.NotFound("Tabela vazia!");
 });
 
-app.MapGet("/api/sessao/listar",
-    ([FromServices] AppDataContext ctx) =>
+app.MapGet("/api/sessao/listar", ([FromServices] AppDataContext ctx) =>
 {
     if (ctx.Sessoes.Any())
     {
@@ -87,22 +111,18 @@ app.MapPost("/api/venda", (VendaRequest vendaRequest, [FromServices] AppDataCont
     return Results.Ok(new { Mensagem = "Venda registrada com sucesso!", Troco = troco });
 });
 
-
 app.MapPost("/api/reserva", (VendaRequest vendaRequest, [FromServices] AppDataContext ctx) =>
 {
-
     var sessao = ctx.Sessoes.Include(s => s.Filme).FirstOrDefault(s => s.Id == vendaRequest.SessaoId);
     if (sessao == null)
     {
         return Results.NotFound("Sessão não encontrada!");
     }
 
-
     if (sessao.IngressosDisponiveis < vendaRequest.QuantidadeIngressos)
     {
         return Results.BadRequest("Ingressos insuficientes disponíveis!");
     }
-
 
     if (sessao.IngressosDisponiveis == 0)
     {
@@ -115,9 +135,8 @@ app.MapPost("/api/reserva", (VendaRequest vendaRequest, [FromServices] AppDataCo
     var troco = vendaRequest.ValorPago - (sessao.PrecoIngresso * vendaRequest.QuantidadeIngressos);
 
     return Results.Ok(new { Mensagem = "Ingressos reservados com sucesso!", Troco = troco });
-
-    
 });
+
 app.MapGet("/api/vendas/relatorio", (DateTime inicio, DateTime fim, [FromServices] AppDataContext ctx) =>
 {
     var vendas = ctx.Vendas
@@ -134,8 +153,5 @@ app.MapGet("/api/vendas/relatorio", (DateTime inicio, DateTime fim, [FromService
 
     return Results.Ok(vendas);
 });
-
-
+app.UseCors("Acesso Total");
 app.Run();
-
-
