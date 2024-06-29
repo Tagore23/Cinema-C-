@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import FilmeListar from "./components/pages/Filme/Filme-listar";
-import styled from "styled-components";
 import SessaoCadastrar from "./components/pages/Filme/sessao/sessao-cadastrar";
 
 function App() {
