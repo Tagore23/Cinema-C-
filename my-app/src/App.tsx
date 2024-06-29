@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import FilmeListar from "./components/pages/Filme/Filme-listar";
-import SessaoCadastrar from "./components/pages/Filme/sessao/sessao-cadastrar";
+import SessaoCadastrar from "./components/pages/sessao/sessao-cadastrar";
 
 function App() {
   return (
