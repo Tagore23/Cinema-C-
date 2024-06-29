@@ -30,7 +30,7 @@ function App() {
           <Route path="/pages/sessao/cadastrar" element={<SessaoCadastrar />} />
         </Routes>
         <footer>
-          <p>Desenvolvido por Tagore, Gabriel Braga, Eduardo, Patrick</p>
+          <p>Desenvolvido por Tagore, Gabriel Braga, Eduardo</p>
         </footer>
       </BrowserRouter>
     </div>
