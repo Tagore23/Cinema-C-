@@ -3,8 +3,8 @@ import { Filme } from './Filme';
 export interface Sessao {
     Id: number;
     FilmeId: number;
-    Data: Date; // Usando Date para representar a data
-    Horario: string; // Usando string para representar o horário, mas pode ser ajustado conforme necessário
+    Data: Date; 
+    Horario: string; 
     Sala: string;
     PrecoIngresso: number;
     IngressosDisponiveis: number;
