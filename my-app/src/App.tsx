@@ -3,8 +3,6 @@ import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import FilmeListar from "./components/pages/Filme/Filme-listar";
 import SessaoCadastrar from "./components/pages/Filme/sessao/sessao-cadastrar";
 import EstoqueCadastrar from "./components/pages/Filme/estoque/Estoque-cadastrar";
-import AcessoCadastrar from "./components/pages/Filme/acesso/Acesso-cadastrar";
-import AcessoListar from "./components/pages/Filme/acesso/Acesso-listar";
 import SessaoListar from "./components/pages/Filme/sessao/sessao-listar";
 import SessaoAlterar from "./components/pages/Filme/sessao/sessao-alterar";
 import EstoqueListar from "./components/pages/Filme/estoque/Estoque-listar";
@@ -39,12 +37,6 @@ function App() {
               <Link to={"/pages/estoque/cadastrar"}>Cadastrar estoque</Link>
             </li>
             <li>
-              <Link to={"/pages/acesso/cadastrar"}>Cadastrar acesso</Link>
-            </li>
-            <li>
-              <Link to={"/pages/acesso/listar"}>Listar acessos</Link>
-            </li>
-            <li>
               <Link to={"/pages/sessao/listar"}>Listar sessões</Link>
             </li>
             <li>
@@ -58,8 +50,6 @@ function App() {
           <Route path="/pages/filme/" element={<FilmeCadastrar />} />
           <Route path="/pages/sessao/cadastrar" element={<SessaoCadastrar />} />
           <Route path="/pages/estoque/cadastrar" element={<EstoqueCadastrar onEstoqueAdicionado={adicionarNovoEstoque} />} />
-          <Route path="/pages/acesso/cadastrar" element={<AcessoCadastrar />} />
-          <Route path="/pages/acesso/listar" element={<AcessoListar />} />
           <Route path="/pages/sessao/listar" element={<SessaoListar />} />
           <Route path="/pages/sessao/alterar/:id" element={<SessaoAlterar />} />
           <Route path="/pages/estoque/listar" element={<EstoqueListar />} />

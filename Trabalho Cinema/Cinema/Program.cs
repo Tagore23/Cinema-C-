@@ -34,10 +34,22 @@ app.MapPost("/api/sessao", async (Sessao sessao, [FromServices] AppDataContext c
             return Results.BadRequest("Dados da sessão não foram fornecidos corretamente.");
         }
 
+        // Verifique se o FilmeId fornecido existe
+        var filme = await ctx.Filmes.FindAsync(sessao.FilmeId);
+        if (filme == null)
+        {
+            return Results.BadRequest("Filme não encontrado.");
+        }
+
         ctx.Sessoes.Add(sessao);
         await ctx.SaveChangesAsync(); // Use SaveChangesAsync para operações assíncronas
 
         return Results.Created($"/api/sessao/{sessao.Id}", sessao);
+    }
+    catch (DbUpdateException dbEx)
+    {
+        Console.Error.WriteLine($"Erro de banco de dados ao cadastrar sessão: {dbEx.InnerException?.Message ?? dbEx.Message}");
+        return Results.Problem($"Erro de banco de dados ao cadastrar sessão: {dbEx.InnerException?.Message ?? dbEx.Message}", statusCode: 500);
     }
     catch (Exception ex)
     {
@@ -155,13 +167,6 @@ app.MapGet("/api/vendas/relatorio", async (DateTime inicio, DateTime fim, [FromS
         .ToListAsync();
 
     return Results.Ok(vendas);
-});
-
-app.MapPost("/api/acesso/cadastrar", async ([FromBody] Acesso acesso, [FromServices] AppDataContext ctx) =>
-{
-    ctx.Acessos.Add(acesso);
-    await ctx.SaveChangesAsync();
-    return Results.Created($"/acesso/{acesso.Id}", acesso);
 });
 
 app.MapPost("/api/estoque/cadastrar", async ([FromBody] Estoque estoque, [FromServices] AppDataContext ctx) =>
