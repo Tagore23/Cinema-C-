@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Filme } from "../../../models/Filme";
 
@@ -13,10 +13,10 @@ function FilmeCadastrar() {
     e.preventDefault();
 
     const novoFilme: Filme = {
+      id: 0, // Id será gerado pelo banco de dados
       titulo,
       sinopse,
       genero,
-      id: 0
     };
 
     try {

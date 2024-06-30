@@ -51,7 +51,6 @@ function FilmeListar() {
             <th>Titulo</th>
             <th>Genero</th>
             <th>Sinopse</th>
-            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -61,9 +60,6 @@ function FilmeListar() {
               <StyledTableCell>{filme.titulo}</StyledTableCell>
               <StyledTableCell>{filme.genero}</StyledTableCell>
               <StyledTableCell>{filme.sinopse}</StyledTableCell>
-              <StyledTableCell>
-                <Link to={`/filme/editar/${filme.id}`}>Editar</Link>
-              </StyledTableCell>
             </tr>
           ))}
         </tbody>

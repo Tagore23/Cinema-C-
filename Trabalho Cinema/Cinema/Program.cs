@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Cinema.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDataContext>();
 
 builder.Services.AddCors(options =>
-    options.AddPolicy("Acesso Total",
+    options.AddPolicy("AcessoTotal",
         policy => policy
             .AllowAnyOrigin()
             .AllowAnyHeader()
@@ -19,10 +18,10 @@ var app = builder.Build();
 
 
 
-app.MapPost("/api/filme", (Filme filme, [FromServices] AppDataContext ctx) =>
+app.MapPost("/api/filme", async (Filme filme, [FromServices] AppDataContext ctx) =>
 {
     ctx.Filmes.Add(filme);
-    ctx.SaveChanges();
+    await ctx.SaveChangesAsync();
     return Results.Created($"/api/filme/{filme.Id}", filme);
 });
 
@@ -47,30 +46,35 @@ app.MapPost("/api/sessao", async (Sessao sessao, [FromServices] AppDataContext c
     }
 });
 
-
-
-app.MapGet("/api/filme/listar", ([FromServices] AppDataContext ctx) =>
+app.MapGet("/api/filme/listar", async ([FromServices] AppDataContext ctx) =>
 {
-    if (ctx.Filmes.Any())
+    var filmes = await ctx.Filmes.ToListAsync();
+    if (filmes.Any())
     {
-        return Results.Ok(ctx.Filmes.ToList());
+        return Results.Ok(filmes);
     }
     return Results.NotFound("Tabela vazia!");
 });
 
-app.MapGet("/api/sessao/listar", ([FromServices] AppDataContext ctx) =>
+app.MapGet("/api/sessao/listar", async ([FromServices] AppDataContext ctx) =>
 {
-    if (ctx.Sessoes.Any())
+    var sessoes = await ctx.Sessoes
+        .Include(s => s.Filme)  // Inclui o Filme relacionado com a Sessao
+        .ToListAsync();
+
+    if (sessoes.Any())
     {
-        return Results.Ok(ctx.Sessoes.ToList());
+        return Results.Ok(sessoes);
     }
     return Results.NotFound("Tabela vazia!");
 });
 
-app.MapPost("/api/venda", (VendaRequest vendaRequest, [FromServices] AppDataContext ctx) =>
+
+
+
+app.MapPost("/api/venda", async (VendaRequest vendaRequest, [FromServices] AppDataContext ctx) =>
 {
-    // Verificar se a sessão existe
-    var sessao = ctx.Sessoes.Find(vendaRequest.SessaoId);
+    var sessao = await ctx.Sessoes.FindAsync(vendaRequest.SessaoId);
     if (sessao == null)
     {
         return Results.NotFound("Sessão não encontrada!");
@@ -91,7 +95,6 @@ app.MapPost("/api/venda", (VendaRequest vendaRequest, [FromServices] AppDataCont
         return Results.BadRequest("Valor pago é insuficiente para o número de ingressos solicitados!");
     }
 
-    // Inicializar a venda com os dados recebidos
     var venda = new Venda
     {
         SessaoId = vendaRequest.SessaoId,
@@ -99,21 +102,20 @@ app.MapPost("/api/venda", (VendaRequest vendaRequest, [FromServices] AppDataCont
         ValorPago = vendaRequest.ValorPago,
         NomeCliente = vendaRequest.NomeCliente,
         DataVenda = vendaRequest.DataVenda,
-        Titulo = "Venda de Ingressos"  // Exemplo de inicialização do título
-        // Certifique-se de inicializar todas as propriedades obrigatórias conforme seu modelo de dados
+        Titulo = "Venda de Ingressos"
     };
 
     ctx.Vendas.Add(venda);
-    ctx.SaveChanges();
+    await ctx.SaveChangesAsync();
 
     var troco = vendaRequest.ValorPago - (sessao.PrecoIngresso * vendaRequest.QuantidadeIngressos);
 
     return Results.Ok(new { Mensagem = "Venda registrada com sucesso!", Troco = troco });
 });
 
-app.MapPost("/api/reserva", (VendaRequest vendaRequest, [FromServices] AppDataContext ctx) =>
+app.MapPost("/api/reserva", async (VendaRequest vendaRequest, [FromServices] AppDataContext ctx) =>
 {
-    var sessao = ctx.Sessoes.Include(s => s.Filme).FirstOrDefault(s => s.Id == vendaRequest.SessaoId);
+    var sessao = await ctx.Sessoes.Include(s => s.Filme).FirstOrDefaultAsync(s => s.Id == vendaRequest.SessaoId);
     if (sessao == null)
     {
         return Results.NotFound("Sessão não encontrada!");
@@ -130,52 +132,49 @@ app.MapPost("/api/reserva", (VendaRequest vendaRequest, [FromServices] AppDataCo
     }
 
     sessao.IngressosDisponiveis -= vendaRequest.QuantidadeIngressos;
-    ctx.SaveChanges();
+    await ctx.SaveChangesAsync();
 
     var troco = vendaRequest.ValorPago - (sessao.PrecoIngresso * vendaRequest.QuantidadeIngressos);
 
     return Results.Ok(new { Mensagem = "Ingressos reservados com sucesso!", Troco = troco });
 });
 
-app.MapGet("/api/vendas/relatorio", (DateTime inicio, DateTime fim, [FromServices] AppDataContext ctx) =>
+app.MapGet("/api/vendas/relatorio", async (DateTime inicio, DateTime fim, [FromServices] AppDataContext ctx) =>
 {
-    var vendas = ctx.Vendas
-        .Include(v => v.Sessao) // Inclui a sessão associada à venda
+    var vendas = await ctx.Vendas
+        .Include(v => v.Sessao) 
+        .ThenInclude(s => s.Filme) 
         .Where(v => v.DataVenda >= inicio && v.DataVenda <= fim)
         .Select(v => new 
         {
             DataVenda = v.DataVenda,
-            TituloFilme = v.Sessao.Filme.Titulo, // Acessa o título do filme através da sessão
+            TituloFilme = v.Sessao.Filme.Titulo, 
             QuantidadeIngressos = v.QuantidadeIngressos,
             NomeCliente = v.NomeCliente
         })
-        .ToList();
+        .ToListAsync();
 
     return Results.Ok(vendas);
 });
 
-//http://localhost:5181/api/acesso/cadastrar
-app.MapPost("/api/acesso/cadastrar",  ([FromBody]Acesso acesso,[FromServices] AppDataContext ctx) =>
+app.MapPost("/api/acesso/cadastrar", async ([FromBody] Acesso acesso, [FromServices] AppDataContext ctx) =>
 {
     ctx.Acessos.Add(acesso);
-    ctx.SaveChanges();
+    await ctx.SaveChangesAsync();
     return Results.Created($"/acesso/{acesso.Id}", acesso);
 });
 
-
-//http://localhost:5181/api/Estoque/cadastrar
-app.MapPost("/api/estoque/cadastrar",  ([FromBody]Estoque estoque,[FromServices] AppDataContext ctx) =>
+app.MapPost("/api/estoque/cadastrar", async ([FromBody] Estoque estoque, [FromServices] AppDataContext ctx) =>
 {
     ctx.Estoques.Add(estoque);
-    ctx.SaveChanges();
+    await ctx.SaveChangesAsync();
     return Results.Created($"/estoque/{estoque.Id}", estoque);
 });
-//http://localhost:5181/api/Estoque/listar
-app.MapGet("api/estoque/listar", ([FromServices]AppDataContext ctx) =>
-{
-    
-    return Results.Ok(ctx.Estoques.ToList());
-});
 
-app.UseCors("Acesso Total");
+app.MapGet("/api/estoque/listar", async ([FromServices] AppDataContext ctx) =>
+{
+    var estoques = await ctx.Estoques.ToListAsync();
+    return Results.Ok(estoques);
+});
+app.UseCors("AcessoTotal");
 app.Run();

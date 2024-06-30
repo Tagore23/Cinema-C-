@@ -7,9 +7,9 @@ import AcessoCadastrar from "./components/pages/Filme/acesso/Acesso-cadastrar";
 import AcessoListar from "./components/pages/Filme/acesso/Acesso-listar";
 import SessaoListar from "./components/pages/Filme/sessao/sessao-listar";
 import SessaoAlterar from "./components/pages/Filme/sessao/sessao-alterar";
-import FilmeAlterar from "./components/pages/Filme/Filme-alterar";
 import EstoqueListar from "./components/pages/Filme/estoque/Estoque-listar";
 import { Estoque } from "./models/Estoque"; 
+import FilmeCadastrar from "./components/pages/Filme/Filme-cadastrar";
 
 function App() {
   const adicionarNovoEstoque = (novoEstoque: Estoque) => {
@@ -55,13 +55,13 @@ function App() {
         <Routes>
           <Route path="/" element={<FilmeListar />} />
           <Route path="/pages/filme/listar" element={<FilmeListar />} />
+          <Route path="/pages/filme/" element={<FilmeCadastrar />} />
           <Route path="/pages/sessao/cadastrar" element={<SessaoCadastrar />} />
           <Route path="/pages/estoque/cadastrar" element={<EstoqueCadastrar onEstoqueAdicionado={adicionarNovoEstoque} />} />
           <Route path="/pages/acesso/cadastrar" element={<AcessoCadastrar />} />
           <Route path="/pages/acesso/listar" element={<AcessoListar />} />
           <Route path="/pages/sessao/listar" element={<SessaoListar />} />
           <Route path="/pages/sessao/alterar/:id" element={<SessaoAlterar />} />
-          <Route path="/pages/filme/alterar/:id" element={<FilmeAlterar />} />
           <Route path="/pages/estoque/listar" element={<EstoqueListar />} />
         </Routes>
         <footer>

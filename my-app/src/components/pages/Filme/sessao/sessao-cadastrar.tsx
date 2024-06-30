@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sessao } from "../../../../models/Sessao";
 
-
-
 function SessaoCadastrar() {
   const navigate = useNavigate();
 
@@ -17,10 +15,13 @@ function SessaoCadastrar() {
   const cadastrarSessao = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Convertendo a data e o horário para o formato Date
+    const dataFormatada = new Date(`${data}T${horario}:00`);
+
     const novaSessao: Sessao = {
       Id: 0, // Id será gerado pelo banco de dados
       FilmeId: filmeId,
-      Data: new Date(data),
+      Data: dataFormatada, // Usando um objeto Date aqui
       Horario: horario,
       Sala: sala,
       PrecoIngresso: precoIngresso,
@@ -34,7 +35,7 @@ function SessaoCadastrar() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(novaSessao),
+        body: JSON.stringify(novaSessao),  // Enviando o objeto completo
       });
 
       if (!response.ok) {
